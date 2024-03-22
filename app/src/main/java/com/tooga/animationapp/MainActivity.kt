@@ -260,12 +260,31 @@ fun Screen2() {
 
 @Composable
 fun Screen3() {
+    val infiniteTransition = rememberInfiniteTransition()
+    val color by infiniteTransition.animateColor(
+        initialValue = Color.Red,
+        targetValue = Color.Green,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
 
+    Box(modifier = Modifier.fillMaxSize().background(color)) {
+    }
 }
 
 @Composable
 fun Screen4() {
+    var offset by remember { mutableStateOf(Offset(0f, 0f)) }
 
+    Box(
+        modifier = Modifier.fillMaxSize().pointerInput(Unit) {
+            detectTapGestures { offset = it }
+        }
+    ) {
+        Circle(offset = offset)
+    }
 }
 
 @Composable
