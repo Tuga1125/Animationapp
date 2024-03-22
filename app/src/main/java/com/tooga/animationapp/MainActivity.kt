@@ -188,7 +188,74 @@ fun ContentIcon() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Screen2() {
+    var selected by remember { mutableStateOf(false) }
 
+// Animates changes when `selected` is changed.
+    val transition = updateTransition(selected, label = "selected state")
+    val borderColor by transition.animateColor(label = "border color") { isSelected ->
+        if (isSelected) Color.Magenta else Color.White
+    }
+    val elevation by transition.animateDp(label = "elevation") { isSelected ->
+        if (isSelected) 10.dp else 2.dp
+    }
+    val contentOpacity by transition.animateFloat(label = "content opacity") { isSelected ->
+        if (isSelected) 1f else 0f
+    }
+
+    Surface(
+        onClick = { selected = !selected },
+        shape = MaterialTheme.shapes.medium,
+        border = BorderStroke(2.dp, borderColor),
+        shadowElevation = elevation,
+        modifier = Modifier.padding(16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .animateContentSize()
+                .padding(16.dp)
+                .fillMaxWidth()
+                .clickable { selected = !selected }
+        ) {
+            Text(text = "Click Me!", color = Color.Black)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            AnimatedVisibility(
+                visible = selected,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Text(
+                    text = AnnotatedString.Builder("It is fine today.")
+                        .apply {
+                            addStyle(
+                                style = SpanStyle(color = Color.Blue),
+                                start = 0,
+                                end = length
+                            )
+                        }
+                        .toAnnotatedString(),
+                    modifier = Modifier.alpha(contentOpacity)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // AnimatedContent as a part of the transition.
+            transition.AnimatedContent { targetState ->
+                if (targetState) {
+                    Text(text = "Selected", color = Color.Green)
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Phone,
+                        contentDescription = "Phone",
+                        tint = Color.Red,
+                        modifier = Modifier.size(48.dp)
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable
